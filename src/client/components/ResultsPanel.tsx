@@ -152,7 +152,7 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
           </section>
         )}
 
-        {showReport && (
+        {report && (
           <section className="section">
             <div className="section-head">
               <i className="fa-solid fa-file-lines" /> Generated clinical report
