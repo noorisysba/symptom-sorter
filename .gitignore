@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+# Build output
+dist/
+public/static/app.js
+public/static/styles.css
+# Runtime
+.pm2/
+pids/
+logs/
+*.log
+# Wrangler local state (miniflare caches, local D1/KV, traces)
+.wrangler/
+# Env
+.env
+.dev.vars
+# Temp
+.tmp-engine/
+*.tar.gz
+*.zip
