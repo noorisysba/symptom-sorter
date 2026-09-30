@@ -20,6 +20,9 @@ export function ConsultationForm({ value, onChange, onSubmit, loading }: Props) 
   const [showInv, setShowInv] = useState(true)
   const [prescriptionType, setPrescriptionType] = useState('Acute')
   const [consent, setConsent] = useState(true)
+  // Reason for consultation is compulsory. When it is missing we block the
+  // analysis and surface a "no information" warning popup instead.
+  const [warn, setWarn] = useState(false)
 
   const set = <K extends keyof ConsultationInput>(k: K, v: ConsultationInput[K]) =>
     onChange({ ...value, [k]: v })
@@ -29,13 +32,51 @@ export function ConsultationForm({ value, onChange, onSubmit, loading }: Props) 
 
   const v = value.vitals ?? {}
 
+  const reasonMissing = !(value.reasonForVisit ?? '').trim()
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
+    // Compulsory-field gate — no analysis runs without a reason for consultation.
+    if (reasonMissing) {
+      setWarn(true)
+      return
+    }
+    setWarn(false)
     onSubmit(value)
   }
 
   return (
     <form className="consult scroll-thin" onSubmit={submit} style={{ overflowY: 'auto' }}>
+      {warn && (
+        <div className="modal-overlay" role="alertdialog" aria-modal="true" onClick={() => setWarn(false)}>
+          <div className="modal-panel modal-warn" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-bar warn">
+              <h3>
+                <i className="fa-solid fa-triangle-exclamation" /> No information
+              </h3>
+              <button type="button" className="modal-close" onClick={() => setWarn(false)} aria-label="Dismiss warning">
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="modal-empty">
+                <i className="fa-solid fa-triangle-exclamation big" />
+                <h3>Reason for Consultation is required</h3>
+                <p>
+                  No analysis has been generated. Enter the <b>Reason for Consultation</b> to run the Symptom
+                  Sorter — without it there is no clinical information to assess.
+                </p>
+                <div className="modal-actions">
+                  <button type="button" className="btn-submit" onClick={() => setWarn(false)}>
+                    Go back and fill it in
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="consult-head">
         <h3>
           <i className="fa-solid fa-stethoscope" /> Consultations
@@ -69,21 +110,31 @@ export function ConsultationForm({ value, onChange, onSubmit, loading }: Props) 
         </span>
       </div>
 
-      {/* ---- Reason for consultation ---- */}
+      {/* ---- Reason for consultation (compulsory) ---- */}
       <section className="section">
         <div className="section-head">
-          Reason For Consultation
+          Reason For Consultation <span className="req">*</span>
+          <span className="f" title="Required to run the analysis">Required</span>
         </div>
         <div className="section-body">
           <div className="grid">
             <div className="fld g2">
-              <label htmlFor="rvis">Reason for visit *</label>
+              <label htmlFor="rvis">
+                Reason for visit <span className="req">*</span>
+              </label>
               <input
                 id="rvis"
+                className={warn && reasonMissing ? 'invalid' : ''}
                 value={value.reasonForVisit ?? ''}
                 onChange={(e) => set('reasonForVisit', e.target.value)}
                 placeholder="e.g. Cough and mild fever"
+                aria-required="true"
               />
+              {warn && reasonMissing && (
+                <span className="warn-inline">
+                  <i className="fa-solid fa-triangle-exclamation" /> No information — this field is compulsory.
+                </span>
+              )}
             </div>
             <div className="fld g1">
               <label htmlFor="age">Age</label>

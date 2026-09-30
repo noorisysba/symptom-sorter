@@ -104,6 +104,12 @@ input, select, textarea { font-family: inherit; font-size: 13px; color: var(--in
 }
 .col-center { flex: 1 1 40%; min-width: 300px; border-right: 1px solid var(--line); overflow-y: auto; background: var(--white); }
 .col-right { flex: 1 1 60%; min-width: 380px; overflow-y: auto; background: var(--bg); display: flex; }
+/* Main consultation workspace (right side of the static patient panel) */
+.col-main {
+  flex: 1 1 auto; min-width: 320px; display: flex; flex-direction: column;
+  overflow-y: auto; background: var(--white);
+}
+.col-main .subtabs { padding: 0 14px; margin-bottom: 0; background: var(--white); }
 .icon-rail {
   width: 60px; flex: 0 0 60px; background: var(--navy-2); display: flex; flex-direction: column;
   align-items: center; padding-top: 12px; gap: 6px;
@@ -313,6 +319,70 @@ select.notes-sel { border: 1px solid var(--line); border-radius: 16px; padding: 
   background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px; font-size: 12px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-x: auto; line-height: 1.5;
 }
+
+/* ---------------- Analysis popup (modal) ---------------- */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(11, 31, 75, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 28px 20px; overflow-y: auto;
+  animation: modal-fade 0.16s ease-out;
+}
+@keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+.modal-panel {
+  width: min(1080px, 100%);
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(7, 20, 50, 0.45);
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 56px);
+  overflow: hidden;
+  animation: modal-rise 0.2s ease-out;
+}
+@keyframes modal-rise { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--navy); color: #fff; padding: 12px 16px; flex: 0 0 auto;
+}
+.modal-bar h3 { margin: 0; font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.modal-bar.warn { background: var(--red); }
+.modal-panel.modal-warn { width: min(560px, 100%); }
+.modal-close {
+  margin-left: auto; width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: rgba(255, 255, 255, 0.12); color: #fff; font-size: 16px;
+  display: grid; place-items: center;
+}
+.modal-close:hover { background: rgba(255, 255, 255, 0.24); }
+.modal-body { flex: 1 1 auto; overflow-y: auto; padding: 16px 18px 26px; }
+.modal-body .consult { padding: 0; }
+
+/* ---------------- Compulsory-field warning ---------------- */
+.req { color: var(--red); font-weight: 700; }
+.fld input.invalid, .fld textarea.invalid, .fld select.invalid {
+  border-color: var(--red); background: #fef2f2;
+  outline: 2px solid #fee2e2;
+}
+.warn-box {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: #fef2f2; border: 1px solid #fca5a5; border-left: 5px solid var(--red);
+  border-radius: var(--radius); padding: 11px 13px; margin-bottom: 12px; color: #7f1d1d;
+}
+.warn-box i { color: var(--red); font-size: 16px; margin-top: 1px; }
+.warn-box b { display: block; font-size: 13px; margin-bottom: 2px; }
+.warn-box span { font-size: 12px; line-height: 1.45; }
+.warn-inline {
+  margin-top: 5px; font-size: 11.5px; color: var(--red); font-weight: 600;
+  display: flex; gap: 5px; align-items: center;
+}
+.modal-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center; padding: 46px 24px; color: var(--ink-2);
+}
+.modal-empty i.big { font-size: 40px; color: #fca5a5; }
+.modal-empty h3 { margin: 4px 0 0; color: var(--navy); }
+.modal-empty p { margin: 0; font-size: 12.5px; color: var(--ink-2); max-width: 460px; line-height: 1.55; }
+.modal-actions { display: flex; gap: 10px; margin-top: 6px; }
 
 /* ---------------- Reference browser ---------------- */
 .ref-layout { display: flex; height: calc(100vh - 52px); }

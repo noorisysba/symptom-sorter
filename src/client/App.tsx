@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { api, type AnalysisResult, type Chapter, type ConsultationInput } from './api'
+import { useCallback, useEffect, useState } from 'react'
+import { api, type AnalysisResult, type ConsultationInput } from './api'
 import { ConsultationForm } from './components/ConsultationForm'
 import { ResultsPanel } from './components/ResultsPanel'
 import { ReferenceBrowser } from './components/ReferenceBrowser'
@@ -17,12 +17,15 @@ export default function App() {
   const [health, setHealth] = useState<{ chapters: number; conditions: number; source: string } | null>(null)
   const [report, setReport] = useState('')
   const [reportLoading, setReportLoading] = useState(false)
+  // Popup state — the analysis is shown in a modal, opened on Submit.
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => {})
   }, [])
 
   const runDiagnosis = useCallback(async (input: ConsultationInput) => {
+    setModalOpen(true)
     setLoading(true)
     setError(null)
     setReport('')
@@ -57,13 +60,18 @@ export default function App() {
     [runDiagnosis]
   )
 
+  const closeModal = useCallback(() => setModalOpen(false), [])
+
   return (
     <div>
       <TopBar health={health} />
       <div className="shell">
+        {/* Left side — static patient panel (matches the CLINIDOCS reference) */}
         <LeftPanel patient={patient} />
-        <main className="col-center scroll-thin" style={{ display: 'flex', flexDirection: 'column' }}>
-          <div className="subtabs" style={{ padding: '0 14px', marginBottom: 0 }}>
+
+        {/* Right side — the consultation workspace */}
+        <main className="col-main">
+          <div className="subtabs">
             <button className={tab === 'consult' ? 'active' : ''} onClick={() => setTab('consult')}>
               <i className="fa-solid fa-notes-medical" /> Consultation &amp; Notes
             </button>
@@ -92,16 +100,33 @@ export default function App() {
             </div>
           )}
         </main>
-        <section className="col-right scroll-thin">
-          <ResultsPanel
-            result={result}
-            loading={loading}
-            report={report}
-            reportLoading={reportLoading}
-            onGenerateReport={generateReport}
-          />
-        </section>
       </div>
+
+      {/* Analysis popup — appears after Submit */}
+      {modalOpen && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Symptom sorter analysis" onClick={closeModal}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-bar">
+              <h3>
+                <i className="fa-solid fa-robot" /> Symptom Sorter Analysis
+              </h3>
+              <button type="button" className="modal-close" onClick={closeModal} aria-label="Close analysis">
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+            <div className="modal-body scroll-thin">
+              <ResultsPanel
+                result={result}
+                loading={loading}
+                report={report}
+                reportLoading={reportLoading}
+                onGenerateReport={generateReport}
+                onClose={closeModal}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

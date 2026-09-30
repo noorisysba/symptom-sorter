@@ -6,9 +6,10 @@ interface Props {
   report: string
   reportLoading: boolean
   onGenerateReport: () => void
+  onClose?: () => void
 }
 
-export function ResultsPanel({ result, loading, report, reportLoading, onGenerateReport }: Props) {
+export function ResultsPanel({ result, loading, report, reportLoading, onGenerateReport, onClose }: Props) {
   if (loading && !result) {
     return (
       <div style={{ padding: 24, width: '100%' }}>
@@ -27,7 +28,7 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
           <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 34, color: '#cbd5e1' }} />
           <h3 style={{ color: 'var(--ink-2)' }}>AI clinical decision support</h3>
           <p>
-            Complete the consultation on the left and press <b>Submit</b> — or load a sample case.
+            Complete the consultation and press <b>Submit</b> — or load a sample case.
             <br />
             The engine will produce an explainable differential, triage advice and reference guidance
             drawn from <i>Symptom Sorter</i>.
