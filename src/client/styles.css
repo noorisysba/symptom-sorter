@@ -286,6 +286,15 @@ select.notes-sel { border: 1px solid var(--line); border-radius: 16px; padding: 
 .band.most { background: #dcfce7; color: #166534; }
 .band.possible { background: #fef9c3; color: #854d0e; }
 .band.less { background: #f1f5f9; color: #475569; }
+.band-dot {
+  display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.band-dot.most { background: #16a34a; }
+.band-dot.possible { background: #eab308; }
+.band-dot.less { background: #94a3b8; }
+.dx-ref-icon { color: var(--blue); transition: opacity 0.15s, transform 0.15s; }
+.dx-ref-icon:hover { opacity: 0.8; transform: scale(1.15); }
 .conf-bar { height: 6px; border-radius: 3px; background: #eef2f7; margin: 8px 12px 0; overflow: hidden; }
 .conf-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), #7c3aed); }
 .dx-body { padding: 10px 12px 14px; }

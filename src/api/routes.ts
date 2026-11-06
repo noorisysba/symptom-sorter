@@ -39,6 +39,18 @@ api.get('/health', (c) =>
 api.get('/sections', (c) => c.json({ sections: KB_SECTIONS }))
 
 /* ------------------------------------------------------------------ *
+ * Patient history (Prepared for future EHR / previous data integration)
+ * ------------------------------------------------------------------ */
+
+api.get('/patient-history/:patientId?', (c) =>
+  c.json({
+    status: 'unconfigured',
+    message: 'Previous patient history integration is reserved for future API connection.',
+    data: null,
+  })
+)
+
+/* ------------------------------------------------------------------ *
  * Reference chapters (the book itself)
  * ------------------------------------------------------------------ */
 

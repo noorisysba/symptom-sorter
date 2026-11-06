@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { AnalysisResult, Diagnosis } from '../api'
 
 interface Props {
@@ -66,7 +67,8 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
       </div>
 
       <div className="result-grid">
-        {/* ---- Summary ---- */}
+        {/* ---- Assessment summary hidden as requested ---- */}
+        {/*
         <section className="section">
           <div className="section-head">
             <i className="fa-solid fa-clipboard-list" /> Assessment summary
@@ -86,6 +88,7 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
             </div>
           </div>
         </section>
+        */}
 
         {/* ---- Features ---- */}
         <section className="section">
@@ -116,7 +119,7 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
         {/* ---- Differential ---- */}
         <section className="section">
           <div className="section-head">
-            <i className="fa-solid fa-ranking-star" /> Likely diagnosis &amp; differential
+            <i className="fa-solid fa-ranking-star" /> Diagnosis To Consider
           </div>
           <div className="section-body" style={{ display: 'grid', gap: 10 }}>
             {result.diagnoses.length === 0 && (
@@ -128,7 +131,19 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
           </div>
         </section>
 
-        {/* ---- Candidate symptom chapters ---- */}
+        {report && (
+          <section className="section">
+            <div className="section-head">
+              <i className="fa-solid fa-file-lines" /> Generated clinical report
+            </div>
+            <div className="section-body">
+              <pre className="report-pre">{report}</pre>
+            </div>
+          </section>
+        )}
+
+        {/* ---- Candidate symptom chapters hidden as requested ---- */}
+        {/*
         {result.candidateSymptoms.length > 0 && (
           <section className="section">
             <div className="section-head">
@@ -152,49 +167,154 @@ export function ResultsPanel({ result, loading, report, reportLoading, onGenerat
             </div>
           </section>
         )}
+        */}
 
-        {report && (
-          <section className="section">
-            <div className="section-head">
-              <i className="fa-solid fa-file-lines" /> Generated clinical report
-            </div>
-            <div className="section-body">
-              <pre className="report-pre">{report}</pre>
-            </div>
-          </section>
-        )}
-
-        <p className="hint" style={{ textAlign: 'center', padding: '0 10px' }}>
-          Decision-support only — derived from Hopcroft &amp; Forte, <i>Symptom Sorter</i> 6th ed. Does not replace
-          clinical judgement or full assessment.
-        </p>
+        <div
+          className="result-disclaimer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            padding: '10px 14px',
+            background: 'rgba(241, 245, 249, 0.75)',
+            border: '1px solid var(--line)',
+            borderRadius: 8,
+            fontSize: '11.5px',
+            color: 'var(--muted)',
+            textAlign: 'center',
+            lineHeight: 1.45,
+          }}
+        >
+          <i
+            className="fa-solid fa-shield-halved"
+            style={{
+              color: 'var(--navy)',
+              fontSize: '14px',
+              flexShrink: 0,
+            }}
+          />
+          <span>
+            <b>Clinical Disclaimer:</b> Decision-support only — derived from Hopcroft &amp; Forte, <i>Symptom Sorter</i> 6th ed. Does not replace clinical judgement or full assessment.
+          </span>
+        </div>
       </div>
     </div>
   )
 }
 
 function DiagnosisCard({ d, rank }: { d: Diagnosis; rank: number }) {
+  const [showRef, setShowRef] = useState(false)
   const bandClass = d.band === 'most likely' ? 'most' : d.band === 'possible' ? 'possible' : 'less'
+  const referenceText = d.chapter?.title
+    ? `From Symptom Sorter (6th Edition) · Chapter: ${d.chapter.title}`
+    : 'From Symptom Sorter (6th Edition)'
+
   return (
     <article className={`dx-card ${rank === 0 ? 'top' : ''}`}>
       <div className="dx-head">
         <div className="dx-rank">{rank + 1}</div>
         <div>
-          <div className="dx-title">{d.name}</div>
+          <div className="dx-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>{d.name}</span>
+            <button
+              type="button"
+              className="dx-ref-btn"
+              onClick={() => setShowRef((prev) => !prev)}
+              title={referenceText}
+              aria-label="View reference info"
+              style={{
+                background: showRef ? 'var(--blue)' : 'var(--blue-soft)',
+                color: showRef ? '#fff' : 'var(--blue)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 20,
+                height: 20,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: 11,
+                padding: 0,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <i className="fa-solid fa-info" />
+            </button>
+          </div>
           <div className="dx-sub">
             {d.category} · urgency: {d.urgency}
           </div>
         </div>
-        <div className="dx-metrics">
+        <div className="dx-metrics" style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Only color dot shown; name and percentage commented out */}
+          <span
+            className={`band-dot ${bandClass}`}
+            title={`Likelihood band: ${d.band}`}
+            style={{
+              display: 'inline-block',
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+            }}
+          />
+          {/*
           <span className={`band ${bandClass}`}>{d.band}</span>
           <div className="dx-sub" style={{ marginTop: 3 }}>
             {d.confidence}% relative likelihood
           </div>
+          */}
         </div>
       </div>
-      <div className="conf-bar">
+
+      {/* Reference banner shown on clicking 'i' */}
+      {showRef && (
+        <div
+          className="dx-ref-popup"
+          style={{
+            margin: '0 12px 8px',
+            background: 'var(--blue-soft)',
+            border: '1px solid #bfdbfe',
+            borderRadius: 7,
+            padding: '8px 12px',
+            fontSize: 12,
+            color: 'var(--navy)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 8,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="fa-solid fa-book-bookmark" style={{ color: 'var(--blue)' }} />
+            <span>
+              <b>Reference:</b> {referenceText}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowRef(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--muted)',
+              cursor: 'pointer',
+              fontSize: 12,
+              padding: '2px 4px',
+            }}
+            aria-label="Close reference note"
+          >
+            <i className="fa-solid fa-xmark" />
+          </button>
+        </div>
+      )}
+
+      {/* Percentage bar removed as requested */}
+      {/*
+      <div className="conf-bar" title={`${d.confidence}% relative likelihood`}>
         <span style={{ width: `${Math.min(100, d.confidence * 2)}%` }} />
       </div>
+      */}
       <div className="dx-body">
         <div className="evidence">
           {d.supporting.map((s, i) => (

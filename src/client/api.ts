@@ -124,4 +124,8 @@ export const api = {
   chapters: (q?: string) => get<{ total: number; chapters: { id: number; title: string; section: string }[] }>(`/api/chapters${q ? `?q=${encodeURIComponent(q)}` : ''}`),
   chapter: (id: number) => get<Chapter>(`/api/chapters/${id}`),
   health: () => get<{ chapters: number; conditions: number; source: string }>('/api/health'),
+  patientHistory: (id?: string) =>
+    get<{ status: string; message?: string; data: Partial<ConsultationInput> | null }>(
+      `/api/patient-history${id ? `/${encodeURIComponent(id)}` : ''}`
+    ),
 }

@@ -5,6 +5,7 @@ import { ResultsPanel } from './components/ResultsPanel'
 import { ReferenceBrowser } from './components/ReferenceBrowser'
 import { LeftPanel } from './components/LeftPanel'
 import { SAMPLE_CASES, type SampleCase } from './sampleCases'
+import { patientHistoryService } from './services/patientHistory'
 
 type Tab = 'consult' | 'reference' | 'cases'
 
@@ -22,6 +23,23 @@ export default function App() {
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => {})
+
+    // Future patient history lookup:
+    // If configured/enabled in future, this populates sex, age, pastMedicalHistory,
+    // medications, allergies, investigations. When disabled (default), executes as no-op.
+    patientHistoryService.fetchPatientHistory().then((res) => {
+      if (res.available && res.data) {
+        setPatient((prev) => ({
+          ...prev,
+          age: prev.age || res.data?.age || '',
+          sex: prev.sex || res.data?.sex || '',
+          pastMedicalHistory: prev.pastMedicalHistory || res.data?.pastMedicalHistory || '',
+          medications: prev.medications || res.data?.medications || '',
+          allergies: prev.allergies || res.data?.allergies || '',
+          investigations: prev.investigations || res.data?.investigations || '',
+        }))
+      }
+    }).catch(() => {})
   }, [])
 
   const runDiagnosis = useCallback(async (input: ConsultationInput) => {
