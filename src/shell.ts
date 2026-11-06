@@ -6,7 +6,7 @@
  * Hono JSX renderer, and so the client bundle stays the single source of UI.
  */
 
-export function renderIndex(): string {
+export function renderIndex(assetBase = "/static/"): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,11 +18,11 @@ export function renderIndex(): string {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="${assetBase}styles.css" />
 </head>
 <body>
   <div id="root"></div>
-  <script type="module" src="/static/app.js"></script>
+  <script type="module" src="${assetBase}app.js"></script>
 </body>
 </html>`
 }

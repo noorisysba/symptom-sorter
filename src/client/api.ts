@@ -97,8 +97,19 @@ export interface Chapter {
   alarm: string[]
 }
 
+declare const GITHUB_PAGES: boolean
+
+async function request(path: string, init?: RequestInit): Promise<Response> {
+  if (typeof GITHUB_PAGES !== 'undefined' && GITHUB_PAGES) {
+    // GitHub Pages serves static assets. Run the same API in the browser.
+    const { api: localApi } = await import('../api/routes')
+    return localApi.request(path.slice('/api'.length), init)
+  }
+  return fetch(path, init)
+}
+
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(path, {
+  const res = await request(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -108,7 +119,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(path)
+  const res = await request(path)
   if (!res.ok) throw new Error(`${path} failed: ${res.status}`)
   return (await res.json()) as T
 }
